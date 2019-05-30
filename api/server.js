@@ -7,18 +7,11 @@ const server = express();
 
 server.use(express.json());
 server.use(helmet());
-server.use(morgan());
+server.use(morgan('dev'));
 server.use(cors());
 
 server.get('/', (req, res) => {
-  res
-    .status(200)
-    .json({ message: 'Hello World!' })
-    .catch(err => {
-      res
-        .send(err.message)
-        .json({ message: `<h2>Welcome to the Handy App API...</h2>` });
-    });
+  res.status(200).json({message: 'Hello World!'});
 });
 
 module.exports = server;
