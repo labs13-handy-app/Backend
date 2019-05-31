@@ -11,7 +11,7 @@ server.use(morgan('dev'));
 server.use(cors());
 
 server.get('/', (req, res) => {
-  res.status(200).json({message: 'Hello World!'});
+  res.status(200).json({ message: 'Hello World!!' });
 });
 
 module.exports = server;
