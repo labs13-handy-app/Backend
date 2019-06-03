@@ -5,7 +5,7 @@ exports.up = function(knex, Promise) {
     .createTable('projects', tbl => {
       tbl.increments();
 
-       tbl.string('description', 500).notNullable();
+      tbl.string('description', 500).notNullable();
       tbl.string('images', 255).notNullable();
       tbl.string('materials_included', 255).notNullable();
     })
@@ -13,7 +13,7 @@ exports.up = function(knex, Promise) {
       // the projects table must be created before this table is created
       tbl.increments();
 
-       tbl
+      tbl
         .integer('project_id')
         .unsigned()
         .notNullable()
