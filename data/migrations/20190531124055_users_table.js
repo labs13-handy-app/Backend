@@ -1,39 +1,39 @@
 
 exports.up = function(knex, Promise) {
-    return knex.schema.createTable('users', tbl => {
-  
-      tbl
-      .increments();
+  return knex.schema.createTable('users', tbl => {
 
-      tbl
-      .string('name');
+    tbl
+    .increments();
 
-      tbl
-      .string('nickname');
+    tbl
+    .string('name');
 
-      tbl
-      .string('account_type');
+    tbl
+    .string('nickname');
 
-      tbl
-      .string('email');
+    tbl
+    .string('account_type');
 
-      tbl
-      .string('address');
+    tbl
+    .string('email');
 
-      tbl
-      .string('phone_number');
+    tbl
+    .string('address');
 
-      tbl
-      .string('skills');
+    tbl
+    .string('phone_number');
 
-      tbl
-      .string('experience');
+    tbl
+    .string('skills');
 
-      tbl
-      .string('licenses');
+    tbl
+    .string('experience');
 
-    });
-  };
+    tbl
+    .string('licenses');
+
+  });
+};
 
 exports.down = function(knex, Promise) {
 return knex.schema.dropTableIfExists('users');
