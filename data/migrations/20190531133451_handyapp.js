@@ -10,7 +10,6 @@ exports.up = function(knex, Promise) {
         .notNullable()
         .references('id')
         .inTable('users');
-
       tbl.string('description', 500).notNullable();
       tbl.string('images', 255).notNullable();
       tbl.string('materials_included', 255).notNullable();
