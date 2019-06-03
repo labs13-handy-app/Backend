@@ -25,7 +25,7 @@ router.get('/', (req, res) => {
 
     .join('users','projects.user_id','users.id',)
 
-    .select('projects.id','projects.description',{username:'users.username'},'projects.images', 'projects.materials_included')
+    .select('projects.id','projects.description',{name:'users.name'},'projects.images', 'projects.materials_included')
     
     .then(projects => {
       res.status(200).json(projects);
