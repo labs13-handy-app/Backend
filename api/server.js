@@ -12,8 +12,8 @@ server.use(express.json());
 server.use(helmet());
 server.use(morgan('dev'));
 server.use(cors());
-server.use('/register', registerRouter);
-server.use('/projects', projectRouter);
+server.use('/register',registerRouter);
+server.use('/projects',projectRouter);
 
 server.get('/', (req, res) => {
   res.status(200).json({ message: 'Hello World!!' });
