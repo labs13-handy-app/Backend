@@ -4,6 +4,12 @@ exports.up = function(knex, Promise) {
   return knex.schema
     .createTable('projects', tbl => {
       tbl.increments();
+      tbl
+        .integer('user_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('users');
 
       tbl.string('description', 500).notNullable();
       tbl.string('images', 255).notNullable();
