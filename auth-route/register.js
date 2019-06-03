@@ -15,16 +15,17 @@ router.post('/', async (req, res) => {
 
   const user={
     email:decode.email,
-    name:decode.name
+    name:decode.name,
+    nickname:decode.nickname
   }
 
-  const foundUser = await db.getUserByName(name);
+  const foundUser = await db.getUserByName(user.name);
   if (!foundUser) {
     // if the user doesn't exist create a user object that reflect the database schema.
     const newUser = {
-      name: name,
-      nickname,
-      email: email,
+      name: user.name,
+      nickname: user.nickname,
+      email: user.email,
     };
   
     const data = await db.addUser(newUser);
