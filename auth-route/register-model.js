@@ -23,19 +23,19 @@ function getUser() {
 
 function getUserById(id) {
   return db('users')
-    .where({ id })
+    .where({id})
     .first();
 }
 
 function getUserByName(name) {
   return db('users')
-    .where({ name })
+    .where({name})
     .first();
 }
 
 async function addUser(user) {
   const [id] = await db('users').insert(user);
   return db('users')
-    .where({ id })
+    .where({id})
     .first();
 }
