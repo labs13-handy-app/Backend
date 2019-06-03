@@ -12,7 +12,6 @@ server.use(express.json());
 server.use(helmet());
 server.use(morgan('dev'));
 server.use(cors());
-
 server.use('/register', registerRouter);
 server.use('/projects', projectRouter);
 
