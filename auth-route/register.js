@@ -11,9 +11,11 @@ router.post('/', async (req, res) => {
 
       const decode = jwtDecode(userToken);
 
+      console.log(decode);
+
       const user = {
-        email: decode.email,
-        name: decode.name,
+        email: decode.name,
+        name: decode.nickname,
         nickname: decode.nickname
       };
 
@@ -32,10 +34,10 @@ router.post('/', async (req, res) => {
         res.status(200).json(foundUser);
       }
     } else {
-      res.status(400).json({ errorMessage: 'Invalid Credentials!' });
+      res.status(400).json({errorMessage: 'Invalid Credentials!'});
     }
   } catch (err) {
-    res.send(err.message).json({ message: 'unable to sign up' });
+    res.send(err.message).json({message: 'unable to sign up'});
   }
 });
 
