@@ -14,7 +14,7 @@ router.post('/new-customer', jwtChecks, restricted, async (req, res) => {
       email,
       name,
       description: `New customer account for ${email}`,
-      source: req.body.token || 'tok_amex'
+      source: req.body.token || 'tok_visa'
     });
 
     if (customer) {
@@ -32,43 +32,47 @@ router.post('/new-customer', jwtChecks, restricted, async (req, res) => {
   }
 });
 
-// router.post('/', async (req, res) => {
-//   try {
-//     // Creating a charge method that returns a stripe charges object.
-//     const charge = async (token = source, amount, description, customer) => {
-//       return await stripe.charges.create({
-//         source,
-//         amount: amount * 100,
-//         description,
-//         customer,
-//         currency: 'usd'
-//       });
-//     };
+router.post('/charge', jwtChecks, restricted, async (req, res) => {
+  try {
+    const user = req.decodedJwt;
+    const {name: email, nickname: name} = user;
+    const foundUser = await db.getUserByName(name);
+    console.log(foundUser);
+    // Creating a charge method that returns a stripe charges object.
+    const charge = async (token = source, amount, description, customer) => {
+      return await stripe.charges.create({
+        source,
+        amount: amount * 100,
+        description: `Charge for ${foundUser.name}`,
+        customer: foundUser.stripe_id,
+        currency: 'usd'
+      });
+    };
 
-//     // Processing the payment from the request body.
-//     const payment = await charge(
-//       req.body.token.id,
-//       req.body.amount,
-//       req.body.description,
-//       customer.id
-//     );
+    // Processing the payment from the request body.
+    const payment = await charge(
+      req.body.token.id,
+      req.body.amount,
+      req.body.description,
+      customer.id
+    );
 
-//     if (!payment) {
-//       // Error if payment is null
-//       res
-//         .status(400)
-//         .json({errorMessage: `Couldn't process payment, missing information!`});
-//     } else {
-//       // Success
-//       res.status(200).json({message: 'Payment successful.', payment});
-//     }
-//   } catch (e) {
-//     console.log(e.message);
+    if (!payment) {
+      // Error if payment is null
+      res
+        .status(400)
+        .json({errorMessage: `Couldn't process payment, missing information!`});
+    } else {
+      // Success
+      res.status(200).json({message: 'Payment successful.', payment});
+    }
+  } catch (e) {
+    console.log(e.message);
 
-//     res.status(500).json({
-//       errorMessage: 'Purchase Failed'
-//     });
-//   }
-// });
+    res.status(500).json({
+      errorMessage: 'Purchase Failed'
+    });
+  }
+});
 
 module.exports = router;
