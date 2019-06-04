@@ -23,7 +23,7 @@ server.use('/users', userRouter);
 server.use('/bids', bidsRouter);
 
 server.get('/', (req, res) => {
-  res.status(200).json({message: 'Hello World!!'});
+  res.status(200).json({ message: 'Hello World!!' });
 });
 
 module.exports = server;
