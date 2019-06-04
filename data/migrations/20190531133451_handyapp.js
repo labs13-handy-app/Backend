@@ -15,7 +15,6 @@ exports.up = function(knex, Promise) {
       tbl.string('materials_included', 255).notNullable();
     })
     .createTable('bids', tbl => {
-      // the projects table must be created before this table is created
       tbl.increments();
 
       tbl
@@ -30,7 +29,7 @@ exports.up = function(knex, Promise) {
     });
 };
 
- exports.down = function(knex, Promise) {
+exports.down = function(knex, Promise) {
   // tables with FK must be removed before the referenced table is removed
   return knex.schema.dropTableIfExists('projects').dropTableIfExists('bids');
 };
