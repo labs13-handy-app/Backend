@@ -13,8 +13,12 @@ server.use(helmet());
 server.use(morgan('dev'));
 server.use(cors());
 
+<<<<<<< HEAD
 server.use('/register',registerRouter);
 server.use('/projects',projectRouter);
+=======
+server.use('/register', registerRouter);
+>>>>>>> master
 
 server.get('/', (req, res) => {
   res.status(200).json({ message: 'Hello World!!' });
