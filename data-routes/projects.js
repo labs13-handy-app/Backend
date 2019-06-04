@@ -38,11 +38,11 @@ router.get('/', (req, res) => {
     db('projects')
     .where({id:req.params.id})
     .first()
-    .then(user=>{
-        if(user){
+    .then(project=>{
+        if(project){
         db('bids')
-        .where({user_id:req.params.id})
-        .then(project=>{
+        .where({id:req.params.id})
+        .then(bids=>{
           project.bids=bids;
           res.status(200).json(project)
         })
