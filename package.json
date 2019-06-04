@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "server": "nodemon index.js"
+    "server": "nodemon index.js",
+    "reseth": "npx heroku run knex migrate:rollback -a handy-app-api && npx heroku run knex migrate:latest -a handy-app-api && npx heroku run knex seed:run -a handy-app-api"
   },
   "repository": "https://github.com/labs13-handy-app/Backend.git",
   "license": "MIT",
@@ -21,7 +22,8 @@
     "knex-cleaner": "^1.1.4",
     "morgan": "^1.9.1",
     "pg": "^7.11.0",
-    "sqlite3": "^4.0.8"
+    "sqlite3": "^4.0.8",
+    "stripe": "^7.1.0"
   },
   "devDependencies": {
     "nodemon": "^1.19.1"

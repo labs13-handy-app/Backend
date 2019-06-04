@@ -7,6 +7,7 @@ const server = express();
 
 const registerRouter = require('../auth-route/register.js');
 const projectRouter = require('../data-routes/projects.js');
+const stripeRouter = require('../resources/payment/stripe.js');
 
 server.use(express.json());
 server.use(helmet());
@@ -14,10 +15,11 @@ server.use(morgan('dev'));
 server.use(cors());
 
 server.use('/register', registerRouter);
-server.use('/projects', projectsRouter)
+server.use('/projects', projectRouter);
+server.use('/api/checkout', stripeRouter);
 
 server.get('/', (req, res) => {
-  res.status(200).json({ message: 'Hello World!!' });
+  res.status(200).json({message: 'Hello World!!'});
 });
 
 module.exports = server;
