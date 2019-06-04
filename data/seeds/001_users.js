@@ -14,7 +14,9 @@ exports.seed = function(knex, Promise) {
           phone_number: '218.441.6920',
           skills: 'Painting',
           experience: '3',
-          licenses: 'State of CA Contractor'
+          licenses: 'State of CA Contractor',
+          stripe_id: '1',
+          payout_id: '1'
         },
         {
           name: 'Nichole Hagenes',
@@ -25,7 +27,9 @@ exports.seed = function(knex, Promise) {
           phone_number: '683.043.6942',
           skills: '',
           experience: '',
-          licenses: ''
+          licenses: '',
+          stripe_id: '2',
+          payout_id: '2'
         },
         {
           name: 'Celia Kerluke',
@@ -36,7 +40,9 @@ exports.seed = function(knex, Promise) {
           phone_number: '309.054.7972',
           skills: 'Home cleaning',
           experience: '7',
-          licenses: 'State of CA Contractor'
+          licenses: 'State of CA Contractor',
+          stripe_id: '3',
+          payout_id: '3'
         },
         {
           name: 'Kara Pagac',
@@ -47,7 +53,9 @@ exports.seed = function(knex, Promise) {
           phone_number: '074.675.4516',
           skills: '',
           experience: '',
-          licenses: ''
+          licenses: '',
+          stripe_id: '4',
+          payout_id: '4'
         },
         {
           name: 'Chanelle Runolfsdottir',
@@ -58,7 +66,9 @@ exports.seed = function(knex, Promise) {
           phone_number: '092.597.6381',
           skills: 'Plumber',
           experience: '8',
-          licenses: 'State of IL Contractor'
+          licenses: 'State of IL Contractor',
+          stripe_id: '5',
+          payout_id: '5'
         }
       ]);
     });
