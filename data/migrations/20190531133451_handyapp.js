@@ -30,7 +30,7 @@ exports.up = function(knex, Promise) {
     });
 };
 
-exports.down = function(knex, Promise) {
+ exports.down = function(knex, Promise) {
   // tables with FK must be removed before the referenced table is removed
   return knex.schema.dropTableIfExists('projects').dropTableIfExists('bids');
 };
