@@ -7,6 +7,7 @@ const server = express();
 
 const registerRouter = require('../auth-route/register.js');
 const projectRouter = require('../data-routes/projects.js');
+const userRouter= require('../data-routes/users')
 
 
 server.use(express.json());
@@ -16,6 +17,7 @@ server.use(cors());
 
 server.use('/register', registerRouter);
 server.use('/projects', projectRouter);
+server.use('/users', userRouter)
 
 server.get('/', (req, res) => {
   res.status(200).json({ message: 'Hello World!!' });

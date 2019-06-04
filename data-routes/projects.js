@@ -41,7 +41,7 @@ router.get('/', (req, res) => {
     .then(project=>{
         if(project){
         db('bids')
-        .where({id:req.params.id})
+        .where({project_id:req.params.id})
         .then(bids=>{
           project.bids=bids;
           res.status(200).json(project)
