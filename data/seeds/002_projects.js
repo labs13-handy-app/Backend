@@ -34,7 +34,7 @@ exports.seed = function(knex, Promise) {
           materials_included: 'yes'
         },
         {
-          user_id: 4,
+          user_id: 5,
           description:
             'Ullamcorper dignissim cras tincidunt lobortis feugiat. A diam maecenas sed enim. Ut tellus elementum sagittis vitae et leo. Eu non diam phasellus vestibulum lorem sed risus ultricies. Leo vel fringilla est ullamcorper eget nulla facilisi.',
           images: 'img',

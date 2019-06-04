@@ -2,9 +2,15 @@ exports.up = function(knex, Promise) {
   return knex.schema.createTable('users', tbl => {
     tbl.increments();
 
-    tbl.integer('stripe_id');
+    tbl
+      .string('stripe_id')
+      .notNullable()
+      .unique();
 
-    tbl.integer('payout_id');
+    tbl
+      .string('payout_id')
+      .notNullable()
+      .unique();
 
     tbl.string('name');
 
