@@ -95,8 +95,7 @@ router.post('/transfer', jwtChecks, restricted,  async (req, res) => {
         description: `Transfer for ${foundUser.name}`,
         currency: 'usd',
         destination:foundUser.payout_id,
-        receipt_email,
-        source
+        source_type:'card'
       });
       balance = 0;
       foundUser.balance = balance;
