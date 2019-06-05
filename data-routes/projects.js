@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
 // });
 
 router.post('/upload', (req, res, next) => {
-  const upload = multer({ storage }).single('image-input-key');
+  const upload = multer({storage}).single('image-input-key');
   upload(req, res, function(err) {
     if (err) {
       return res.send(err);
@@ -43,7 +43,7 @@ router.post('/upload', (req, res, next) => {
     const uniqueFilename = new Date().toISOString();
     cloudinary.uploader.upload(
       path,
-      { public_id: `handyapp/${uniqueFilename}`, tags: `app` }, // directory and tags are optional
+      {public_id: `handyapp/${uniqueFilename}`, tags: `app`}, // directory and tags are optional
       function(err, images) {
         if (err) return res.send(err);
         console.log('file uploaded to Cloudinary');
@@ -88,7 +88,7 @@ router.get('/', (req, res) => {
     .select(
       'projects.id',
       'projects.description',
-      { name: 'users.name' },
+      {name: 'users.name'},
       'projects.images',
       'projects.materials_included'
     )
@@ -102,12 +102,12 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
   db('projects')
-    .where({ id: req.params.id })
+    .where({id: req.params.id})
     .first()
     .then(project => {
       if (project) {
         db('bids')
-          .where({ project_id: req.params.id })
+          .where({project_id: req.params.id})
           .then(bids => {
             project.bids = bids;
             res.status(200).json(project);
@@ -128,17 +128,15 @@ router.get('/:id', (req, res) => {
 
 router.put('/:id', (req, res) => {
   db('projects')
-    .where({ id: req.params.id })
+    .where({id: req.params.id})
 
     .update(req.body)
 
     .then(count => {
       if (count > 0) {
-        res.status(200).json({ message: `${count} Project was updated` });
+        res.status(200).json({message: `${count} Project was updated`});
       } else {
-        res
-          .status(404)
-          .json({ message: 'the specified Proect does not exist' });
+        res.status(404).json({message: 'the specified Proect does not exist'});
       }
     })
 
@@ -149,17 +147,15 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
   db('projects')
-    .where({ id: req.params.id })
+    .where({id: req.params.id})
 
     .del()
 
     .then(count => {
       if (count > 0) {
-        res.status(200).json({ message: `${count} Project was deleted` });
+        res.status(200).json({message: `${count} Project was deleted`});
       } else {
-        res
-          .status(400)
-          .json({ message: 'the specified Project does not exist' });
+        res.status(400).json({message: 'the specified Project does not exist'});
       }
     })
 
