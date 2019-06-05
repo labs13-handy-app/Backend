@@ -6,7 +6,7 @@ exports.up = function(knex, Promise) {
       tbl.increments();
 
       tbl
-        .integer('user_id')
+        .integer('homeowner_id')
         .unsigned()
         .notNullable()
         .references('id')
@@ -17,6 +17,9 @@ exports.up = function(knex, Promise) {
       tbl.string('description', 500).notNullable();
       tbl.string('images', 255).notNullable();
       tbl.string('materials_included', 128).defaultTo('no');
+      tbl.boolean('isActive').defaultTo(true);
+      tbl.integer('price').defaultTo(0);
+      tbl.timestamp('created_at').defaultTo(knex.fn.now());
     })
     .createTable('bids', tbl => {
       tbl.increments();
@@ -31,7 +34,7 @@ exports.up = function(knex, Promise) {
         .onUpdate('CASCADE');
 
       tbl
-        .integer('user_id')
+        .integer('contractor_id')
         .unsigned()
         .notNullable()
         .references('id')
@@ -39,13 +42,41 @@ exports.up = function(knex, Promise) {
         .onDelete('RESTRICT')
         .onUpdate('CASCADE');
 
-      tbl.string('price', 255).notNullable();
-      tbl.string('time', 255).notNullable();
+      tbl.integer('price').notNullable();
+      tbl.string('time', 128).notNullable();
       tbl.string('materials_included', 128).defaultTo('no');
+      tbl.boolean('isAccpted').defaultTo(false);
+      tbl.timestamp('created_at').defaultTo(knex.fn.now());
+    })
+    .createTable('project_agreement', tbl => {
+      tbl
+        .integer('project_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('projects')
+        .onDelete('RESTRICT')
+        .onUpdate('CASCADE');
+
+      tbl
+        .integer('contractor_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('users')
+        .onDelete('RESTRICT')
+        .onUpdate('CASCADE');
+
+      tbl.timestamp('created_at').defaultTo(knex.fn.now());
+
+      tbl.primary(['project_id', 'contractor_id']);
     });
 };
 
 exports.down = function(knex, Promise) {
   // tables with FK must be removed before the referenced table is removed
-  return knex.schema.dropTableIfExists('projects').dropTableIfExists('bids');
+  return knex.schema
+    .dropTableIfExists('projects')
+    .dropTableIfExists('bids')
+    .dropTableIfExists('project_agreement');
 };
