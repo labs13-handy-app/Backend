@@ -7,11 +7,11 @@ exports.up = function(knex, Promise) {
     tbl.string('payout_id');
     tbl.string('name');
 
-    tbl.string('nickname');
+    tbl.string('nickname').unique();
 
     tbl.string('account_type');
 
-    tbl.string('email');
+    tbl.string('email').unique();
 
     tbl.string('address');
 
@@ -22,6 +22,7 @@ exports.up = function(knex, Promise) {
     tbl.string('experience');
 
     tbl.string('licenses');
+    tbl.integer('balance', 128).defaultTo(0);
   });
 };
 

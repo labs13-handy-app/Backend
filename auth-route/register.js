@@ -11,8 +11,6 @@ router.post('/', async (req, res) => {
 
       const decode = jwtDecode(userToken);
 
-      console.log(decode);
-
       const user = {
         email: decode.name,
         name: decode.nickname,

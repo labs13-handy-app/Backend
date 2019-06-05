@@ -14,12 +14,14 @@ router.post('/new-customer', jwtChecks, restricted, async (req, res) => {
       email,
       name,
       description: `New customer account for ${email}`,
-      source: req.body.token || 'tok_amex'
+      source: req.body.token || 'tok_visa',
+      balance: req.body.balance
     });
 
     if (customer) {
       const foundUser = await db.getUserByName(name);
       foundUser.stripe_id = customer.id;
+      foundUser.balance = customer.balance;
       const editedUser = await db.updateUser(foundUser.id, foundUser);
       res.status(200).json({message: `New customer successfully created!`});
     } else {
@@ -32,43 +34,34 @@ router.post('/new-customer', jwtChecks, restricted, async (req, res) => {
   }
 });
 
-// router.post('/', async (req, res) => {
-//   try {
-//     // Creating a charge method that returns a stripe charges object.
-//     const charge = async (token = source, amount, description, customer) => {
-//       return await stripe.charges.create({
-//         source,
-//         amount: amount * 100,
-//         description,
-//         customer,
-//         currency: 'usd'
-//       });
-//     };
+router.post('/charge', jwtChecks, restricted, async (req, res) => {
+  try {
+    const user = req.decodedJwt;
+    const {name: email, nickname: name} = user;
+    const foundUser = await db.getUserByName(name);
 
-//     // Processing the payment from the request body.
-//     const payment = await charge(
-//       req.body.token.id,
-//       req.body.amount,
-//       req.body.description,
-//       customer.id
-//     );
+    if (!foundUser) {
+      res.status(404).json({errorMessage: `User doesn't exist!`});
+    } else {
+      let {stripe_id: customer, balance} = foundUser;
+      balance = Math.floor(balance * 100);
+      const charge = await stripe.charges.create({
+        amount: balance,
+        description: `Charge for ${foundUser.name}`,
+        customer,
+        currency: 'usd'
+      });
 
-//     if (!payment) {
-//       // Error if payment is null
-//       res
-//         .status(400)
-//         .json({errorMessage: `Couldn't process payment, missing information!`});
-//     } else {
-//       // Success
-//       res.status(200).json({message: 'Payment successful.', payment});
-//     }
-//   } catch (e) {
-//     console.log(e.message);
-
-//     res.status(500).json({
-//       errorMessage: 'Purchase Failed'
-//     });
-//   }
-// });
+      balance = 0;
+      foundUser.balance = balance;
+      const updatedUser = await db.updateUser(foundUser.id, foundUser);
+      res.status(201).json({message: 'Purchase was successfull'});
+    }
+  } catch (e) {
+    res.status(500).json({
+      errorMessage: 'Purchase Failed'
+    });
+  }
+});
 
 module.exports = router;
