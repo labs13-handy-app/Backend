@@ -6,8 +6,7 @@ const db = require('../../auth-route/register-model.js');
 
 router.post('/new-customer', jwtChecks, restricted, async (req, res) => {
   try {
-    const user = req.decodedJwt;
-    const {name: email, nickname: name} = user;
+    const {name: email, nickname: name} = req.decodedJwt;
 
     // Creating a new customer
     const customer = await stripe.customers.create({
@@ -36,31 +35,46 @@ router.post('/new-customer', jwtChecks, restricted, async (req, res) => {
 
 router.post('/charge', jwtChecks, restricted, async (req, res) => {
   try {
-    const user = req.decodedJwt;
-    const {name: email, nickname: name} = user;
-    const foundUser = await db.getUserByName(name);
+    // Get the user from the auth0 decoded token.
+    const foundUser = await db.getUserByName(req.decodedJwt.nickname);
 
     if (!foundUser) {
+      // If user not found send a 404 error.
       res.status(404).json({errorMessage: `User doesn't exist!`});
     } else {
-      let {stripe_id: customer, balance} = foundUser;
-      balance = Math.floor(balance * 100);
+      // Charge the user if exist.
+
+      // Get the stripeToken from the Stripe form in the front-end.
+      const source = req.body.stripeToken;
+
+      // Get the stripeEmail from the Stripe form in the front-end.
+      const {stripeEmail: receipt_email} = req.body;
+
+      // Get the user balance from the users table in the database.
+      let {balance} = foundUser;
+
+      // Change the balance to cents to work with the Stripe API.
+      balance = balance * 100;
+
+      // Create the new charge.
       const charge = await stripe.charges.create({
         amount: balance,
         description: `Charge for ${foundUser.name}`,
-        customer,
-        currency: 'usd'
+        currency: 'usd',
+        receipt_email,
+        source
       });
 
+      // Reset the balance to 0 after charge is processed and assign it back to the user  object.
       balance = 0;
       foundUser.balance = balance;
+
+      // Update the user balance in the database.
       const updatedUser = await db.updateUser(foundUser.id, foundUser);
       res.status(201).json({message: 'Purchase was successfull'});
     }
   } catch (e) {
-    res.status(500).json({
-      errorMessage: 'Purchase Failed'
-    });
+    res.status(500).json({errorMessage: 'Purchase Failed'});
   }
 });
 
