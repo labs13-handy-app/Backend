@@ -83,7 +83,7 @@ router.post('/', (req, res) => {
 
 router.get('/', (req, res) => {
   db('projects')
-    .join('users', 'projects.user_id', 'users.id')
+    .join('users', 'projects.homeowner_id', 'users.id')
 
     .select(
       'projects.id',
