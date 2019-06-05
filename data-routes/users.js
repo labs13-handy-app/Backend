@@ -8,7 +8,7 @@ router.get('/:id', (req,res)=>{
     .then(user=>{
         if(user){
         db('projects')
-        .where({user_id:req.params.id})
+        .where({homeowner_id:req.params.id})
         .then(projects=>{
           user.projects=projects;
           res.status(200).json(user)

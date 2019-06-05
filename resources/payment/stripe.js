@@ -78,4 +78,35 @@ router.post('/charge', jwtChecks, restricted, async (req, res) => {
   }
 });
 
+router.post('/transfer', jwtChecks, restricted,  async (req, res) => {
+  try {
+    const foundUser = await db.getUserByName(req.decodedJwt.nickname);
+
+    if (!foundUser) {
+      res.status(404).json({errorMessage: `User doesn't exist!`});
+    } else {
+      const source = req.body.stripeToken;
+      const {stripeEmail: receipt_email} = req.body;
+      let {balance} = foundUser;
+      balance = balance * 100;
+
+      const transfer = await stripe.transfers.create({
+        amount: balance,
+        description: `Transfer for ${foundUser.name}`,
+        currency: 'usd',
+        destination:foundUser.payout_id,
+        receipt_email,
+        source
+      });
+      balance = 0;
+      foundUser.balance = balance;
+
+      const updatedUser = await db.updateUser(foundUser.id, foundUser);
+      res.status(201).json({message: 'Transfer was successful'});
+    }
+  } catch (err) {
+    res.status(500).json(err.message);
+  }
+});
+
 module.exports = router;
