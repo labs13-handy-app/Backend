@@ -9,7 +9,7 @@ exports.up = function(knex, Promise) {
 
     tbl.string('nickname').unique();
 
-    tbl.string('account_type');
+    tbl.string('account_type').defaultTo('homeowner');
 
     tbl.string('email').unique();
 
