@@ -3,6 +3,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET);
 const jwtChecks = require('../../middleware/jwtChecks.js');
 const restricted = require('../../config/restricted-middleware.js');
 const db = require('../../auth-route/register-model.js');
+const axios = require('axios');
 
 router.post('/new-customer', jwtChecks, restricted, async (req, res) => {
   try {
@@ -78,11 +79,13 @@ router.post('/charge', jwtChecks, restricted, async (req, res) => {
   }
 });
 
-router.post('/transfer', jwtChecks, restricted,  async (req, res) => {
+router.post('/transfer', jwtChecks, restricted, async (req, res) => {
   try {
+    // Get the user from the auth0 decoded token.
     const foundUser = await db.getUserByName(req.decodedJwt.nickname);
 
     if (!foundUser) {
+      // If user not found
       res.status(404).json({errorMessage: `User doesn't exist!`});
     } else {
       const source = req.body.stripeToken;
@@ -94,8 +97,8 @@ router.post('/transfer', jwtChecks, restricted,  async (req, res) => {
         amount: balance,
         description: `Transfer for ${foundUser.name}`,
         currency: 'usd',
-        destination:foundUser.payout_id,
-        source_type:'card'
+        destination: req.body.stripe_id,
+        source_type: req.body.stripeToken
       });
       balance = 0;
       foundUser.balance = balance;
@@ -104,7 +107,40 @@ router.post('/transfer', jwtChecks, restricted,  async (req, res) => {
       res.status(201).json({message: 'Transfer was successful'});
     }
   } catch (err) {
-    res.status(500).json(err.message);
+    console.log(err.message);
+    res.status(500).json({errorMessage: 'Transfer failed!'});
+  }
+});
+
+router.post('/connect', jwtChecks, restricted, async (req, res) => {
+  try {
+    const foundUser = await db.getUserByName(req.decodedJwt.nickname);
+
+    if (!foundUser) {
+      res.status(404).json({errorMessage: `User doesn't exist!`});
+    } else {
+      const {code} = req.body;
+
+      const params = {
+        client_secret: process.env.STRIPE_SECRET,
+        code,
+        grant_type: 'authorization_code'
+      };
+
+      const result = await axios.post(
+        'https://connect.stripe.com/oauth/token',
+        params
+      );
+
+      const {stripe_user_id: stripe_id} = result.data;
+
+      foundUser.payout_id = stripe_id;
+      const editedUser = await db.updateUser(foundUser.id, foundUser);
+      res.status(201).json({message: 'Connect was successfull!'});
+    }
+  } catch (e) {
+    console.log(e.message);
+    res.status(500).json({errorMessage: 'Failed to connect!'});
   }
 });
 
