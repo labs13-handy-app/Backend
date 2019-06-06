@@ -48,7 +48,7 @@ function generateToken(user){
       subject: user.id,
       name:user.nickname,
       account_type:user.account_type,
-      stripe_id:user.strpe_id,
+      stripe_id:user.stripe_id,
       payout_id:user.payout_id,
       email:user.email
   };
