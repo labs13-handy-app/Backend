@@ -114,27 +114,32 @@ router.post('/transfer', jwtChecks, restricted, async (req, res) => {
 
 router.post('/connect', jwtChecks, restricted, async (req, res) => {
   try {
+    // Getting the user from auth0 decoded token.
     const foundUser = await db.getUserByName(req.decodedJwt.nickname);
 
     if (!foundUser) {
+      // If use doesn't exist in the database send 404.
       res.status(404).json({errorMessage: `User doesn't exist!`});
     } else {
+      // If user exist in the database get the code sent from the oauth form in the request body.
       const {code} = req.body;
 
-      const params = {
-        client_secret: process.env.STRIPE_SECRET,
-        code,
-        grant_type: 'authorization_code'
-      };
-
+      // Axios call to the Stripe connect Oauth alongside the params in order to retrieve the stripe_user_id.
       const result = await axios.post(
         'https://connect.stripe.com/oauth/token',
-        params
+        {
+          client_secret: process.env.STRIPE_SECRET,
+          code,
+          grant_type: 'authorization_code'
+        }
       );
 
       const {stripe_user_id: stripe_id} = result.data;
 
+      // Assign the stripe_user_id to the user's payout_id
       foundUser.payout_id = stripe_id;
+
+      // Add the modified user to the database and send 201 code.
       const editedUser = await db.updateUser(foundUser.id, foundUser);
       res.status(201).json({message: 'Connect was successfull!'});
     }
