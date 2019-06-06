@@ -51,7 +51,10 @@ router.put('/:id', (req, res) => {
     const payload={
         subject: user.id,
         name:user.nickname,
-        account_type:user.account_type
+        account_type:user.account_type,
+        stripe_id:user.strpe_id,
+        payout_id:user.payout_id,
+        email:user.email
     };
     const options={
         expiresIn:'1h'
