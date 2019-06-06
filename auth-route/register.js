@@ -1,6 +1,8 @@
 const router = require('express').Router();
 const jwtDecode = require('jwt-decode');
 const db = require('./register-model.js');
+const secrets=require('../config/secret.js')
+const jwt =require('jsonwebtoken')
 
 router.post('/', async (req, res) => {
   try {
@@ -29,7 +31,8 @@ router.post('/', async (req, res) => {
         const data = await db.addUser(newUser);
         res.status(201).json(data);
       } else {
-        res.status(200).json(foundUser);
+        const token= generateToken(foundUser)
+        res.status(200).json({foundUser,token});
       }
     } else {
       res.status(400).json({errorMessage: 'Invalid Credentials!'});
@@ -38,5 +41,21 @@ router.post('/', async (req, res) => {
     res.send(err.message).json({message: 'unable to sign up'});
   }
 });
+
+
+function generateToken(user){
+  const payload={
+      subject: user.id,
+      name:user.nickname,
+      account_type:user.account_type,
+      stripe_id:user.stripe_id,
+      payout_id:user.payout_id,
+      email:user.email
+  };
+  const options={
+      expiresIn:'1h'
+  };
+      return jwt.sign(payload, secrets.jwtSecret, options)
+  }
 
 module.exports = router;
