@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const db = require('../data/dbConfig.js');
+const userDb = require('../auth-route/register-model.js');
 const secrets = require('../config/secret.js');
 const jwt = require('jsonwebtoken');
 const jwChecks = require('../middleware/jwtChecks.js');
