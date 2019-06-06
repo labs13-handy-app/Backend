@@ -1,5 +1,7 @@
 const router = require('express').Router();
 const db = require('../data/dbConfig.js');
+const secrets=require('../config/secret.js')
+const jwt =require('jsonwebtoken')
 
 router.get('/:id', (req,res)=>{
     db('users')
@@ -30,13 +32,13 @@ router.put('/:id', (req, res) => {
 
     .update(req.body)
 
-    .then(count=>{
-
-      if (count>0) {
-        res.status(200).json({message:`${count} Project was updated`})
+    .then(user=>{
+      const token=generateToken(user)
+      if (user) {
+        res.status(200).json({token})
       
     }else{
-        res.status(404).json({message:'the specified Proect does not exist'})
+        res.status(404).json({message:'the specified User does not exist'})
       }
     })
 
@@ -44,5 +46,17 @@ router.put('/:id', (req, res) => {
       res.status(500).json(err.message)
     })
   });
+
+  function generateToken(user){
+    const payload={
+        subject: user.id,
+        name:user.nickname,
+        account_type:user.account_type
+    };
+    const options={
+        expiresIn:'1h'
+    };
+        return jwt.sign(payload, secrets.jwtSecret, options)
+    }
 
 module.exports=router
