@@ -4,7 +4,7 @@ const userDb = require('../auth-route/register-model.js');
 const jwChecks = require('../middleware/jwtChecks.js');
 const restricted = require('../config/restricted-middleware.js');
 
-router.get('/', async (req, res) => {
+router.get('/', jwChecks, restricted, async (req, res) => {
   try {
     const users = await userDb.getUser();
     res.status(200).json(users);
