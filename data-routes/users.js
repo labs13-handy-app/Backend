@@ -5,6 +5,52 @@ const secrets = require('../config/secret.js');
 const jwt = require('jsonwebtoken');
 const jwChecks = require('../middleware/jwtChecks.js');
 const restricted = require('../config/restricted-middleware.js');
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, 'data-routes/uploads');
+  },
+  filename: function(req, file, cb) {
+    console.log(file);
+    cb(null, file.originalname);
+  }
+});
+
+router.post('/upload', (req, res, next) => {
+  const upload = multer({storage}).single('image-input-key');
+  upload(req, res, function(err) {
+    if (err) {
+      return res.send(err);
+    }
+    console.log('file uploaded to server');
+    console.log(req.file);
+
+    // send file to Cloudinary
+    cloudinary.config({
+      cloud_name: 'sandhu',
+      api_key: '715129729739239',
+      api_secret: 'yW0VuhyWZLCvOgLwFqVpM3nOi88'
+    });
+
+    const path = req.file.path;
+    const uniqueFilename = new Date().toISOString();
+    cloudinary.uploader.upload(
+      path,
+      {public_id: `handyapp/${uniqueFilename}`, tags: `app`}, // directory and tags are optional
+      function(err, images) {
+        if (err) return res.send(err);
+        console.log('file uploaded to Cloudinary');
+        // remove file from server
+        const fs = require('fs');
+        fs.unlinkSync(path);
+        // return image details
+        res.json(images);
+      }
+    );
+  });
+});
 
 router.get('/', jwChecks, restricted, async (req, res) => {
   try {
