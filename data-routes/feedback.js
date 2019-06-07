@@ -33,7 +33,7 @@ router.post('/',(req, res) => {
 
   router.get('/:id', (req,res)=>{
 
-    db('review')
+    db('feedback')
 
     .where({id:req.params.id})
 
@@ -47,7 +47,7 @@ router.post('/',(req, res) => {
       }
     })
     .catch(err=>{
-        res.status(500).json({error:err,message:'Unable to find the Specified Feedback at this time.'})
+      res.status(500).json(err.message)
     })
 })
 
