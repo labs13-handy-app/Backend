@@ -70,7 +70,28 @@ exports.up = function(knex, Promise) {
       tbl.timestamp('created_at').defaultTo(knex.fn.now());
 
       tbl.primary(['project_id', 'contractor_id']);
-    });
+    })
+    .createTable('feedback', tbl => {
+      tbl.increments();
+
+      tbl
+        .integer('contractor_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('users')
+        .onDelete('RESTRICT')
+        .onUpdate('CASCADE');
+
+      tbl.string('reviewer_name', 255).notNullable();
+      tbl.string('title', 255).notNullable();
+      tbl.string('description', 255).notNullable();
+      tbl.integer('rating')
+      tbl.string('recommend',5)
+      tbl.timestamp('created_at').defaultTo(knex.fn.now());
+    })
+    
+
 };
 
 exports.down = function(knex, Promise) {
@@ -78,5 +99,6 @@ exports.down = function(knex, Promise) {
   return knex.schema
     .dropTableIfExists('projects')
     .dropTableIfExists('bids')
-    .dropTableIfExists('project_agreement');
+    .dropTableIfExists('project_agreement')
+    .dropTableIfExists('feedback');
 };
