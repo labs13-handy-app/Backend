@@ -5,11 +5,19 @@ exports.up = function(knex, Promise) {
     tbl.string('stripe_id').unique();
 
     tbl.string('payout_id');
-    tbl.string('name');
+
+    tbl.string('first_name');
+
+    tbl.string('last_name');
+
+    tbl
+      .string('company_name', 128)
+      .nullable()
+      .unique();
 
     tbl.string('nickname').unique();
 
-    tbl.string('account_type').defaultTo('homeowner');
+    tbl.string('account_type');
 
     tbl.string('email').unique();
 
@@ -22,6 +30,9 @@ exports.up = function(knex, Promise) {
     tbl.string('experience');
 
     tbl.string('licenses');
+
+    tbl.boolean('isBoarded').defaultTo(false);
+
     tbl.integer('balance', 128).defaultTo(0);
   });
 };

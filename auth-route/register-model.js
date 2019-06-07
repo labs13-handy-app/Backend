@@ -28,15 +28,16 @@ function getUserById(id) {
     .first();
 }
 
-function getUserByName(name) {
+function getUserByName(nickname) {
   return db('users')
-    .where({name})
+    .where({nickname})
     .first();
 }
 
 async function addUser(user) {
   const [id] = await db('users').insert(user);
   return db('users')
+    .select('*')
     .where({id})
     .first();
 }

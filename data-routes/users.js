@@ -46,36 +46,51 @@ router.get('/:id', (req, res) => {
 router.put('/:id', (req, res) => {
   db('users')
     .where({id: req.params.id})
-
     .update(req.body)
-
     .then(user => {
-      const token = generateToken(user);
+      // const token = generateToken(user);
       if (user) {
-        res.status(200).json({token});
+        res.status(200).json(user);
       } else {
         res.status(404).json({message: 'the specified User does not exist'});
       }
     })
-
     .catch(err => {
       res.status(500).json(err.message);
     });
 });
 
-function generateToken(user) {
-  const payload = {
-    subject: user.id,
-    name: user.nickname,
-    account_type: user.account_type,
-    stripe_id: user.strpe_id,
-    payout_id: user.payout_id,
-    email: user.email
-  };
-  const options = {
-    expiresIn: '1h'
-  };
-  return jwt.sign(payload, secrets.jwtSecret, options);
-}
+// function generateToken(user) {
+//   const payload = {
+//     subject: user.id,
+//     name: user.nickname,
+//     account_type: user.account_type,
+//     stripe_id: user.strpe_id,
+//     payout_id: user.payout_id,
+//     email: user.email
+//   };
+//   const options = {
+//     expiresIn: '1h'
+//   };
+//   return jwt.sign(payload, secrets.jwtSecret, options);
+// }
+
+// router.put('/:id', jwChecks, restricted, async (req, res) => {
+//   try {
+//     const foundUser = await userDb.getUserById(req.user.id);
+//     if (!foundUser) {
+//       res
+//         .status(404)
+//         .json({errorMessage: `The specified User does not exist!`});
+//     } else {
+//       const editedUser = await userDb.updateUser(foundUser.id, req.body);
+//       res
+//         .status(200)
+//         .json({message: 'User info successfully updated!', editedUser});
+//     }
+//   } catch (e) {
+//     res.status(500).json(e.message);
+//   }
+// });
 
 module.exports = router;
