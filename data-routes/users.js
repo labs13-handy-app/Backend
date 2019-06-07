@@ -43,7 +43,7 @@ router.get('/:id', (req, res) => {
     });
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', jwChecks, restricted, (req, res) => {
   db('users')
     .where({id: req.params.id})
     .update(req.body)
