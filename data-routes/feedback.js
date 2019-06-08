@@ -49,7 +49,38 @@ router.post('/',(req, res) => {
     .catch(err=>{
       res.status(500).json(err.message)
     })
+    
+    // returns the contractor by id with all of their reviews inside the array
 })
+router.get('/contractor/:id', (req, res) => {
+  db('users')
+    .where({id: req.params.id})
+    .first()
+    .then(user => {
+      if (user) {
+        db('feedback')
+          .where({contractor_id: req.params.id})
+          .then(reviews => {
+            user.reviews = reviews;
+            if(reviews.length>0){
+            res.status(200).json(user);
+            }else {
+              res.status(404).json({message:'The specifed user has no reviews'})
+            }
+          });
+      } else {
+        res
+          .status(404)
+          .json({message: 'The User with the Specified ID does not exist'});
+      }
+    })
+    .catch(err => {
+      res.status(500).json({
+        error: err,
+        message: 'Unable to find the Specified User at this time.'
+      });
+    });
+});
 
 router.put('/:id', (req, res) => {
 
