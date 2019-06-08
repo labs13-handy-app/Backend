@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
         const data = await db.addUser(user);
         // res.status(201).json(user);
         const foundUser = await db.getUserById(data.id);
-        res.status(200).json({foundUser});
+        res.status(200).json(foundUser);
       }
     } else {
       res.status(400).json({errorMessage: 'Invalid Credentials!'});
