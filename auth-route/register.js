@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
       const foundUser = await db.getUserByName(user.nickname);
 
       if (foundUser) {
-        res.status(200).json({foundUser});
+        res.status(200).json(foundUser);
       } else {
         // if the user doesn't exist create a user object that reflect the database schema.
         // const newUser = {
@@ -34,7 +34,8 @@ router.post('/', async (req, res) => {
         const data = await db.addUser(user);
         // res.status(201).json(user);
         const foundUser = await db.getUserById(data.id);
-        res.status(200).json(foundUser);
+        const flag = foundUser.isBoarded;
+        res.status(200).json(flag);
       }
     } else {
       res.status(400).json({errorMessage: 'Invalid Credentials!'});
