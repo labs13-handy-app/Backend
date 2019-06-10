@@ -88,7 +88,8 @@ router.get('/', (req, res) => {
     .select(
       'projects.id',
       'projects.description',
-      {name: 'users.name'},
+      {name: 'users.first_name'},
+      'users.last_name',
       'projects.images',
       'projects.materials_included'
     )
