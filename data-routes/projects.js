@@ -2,6 +2,7 @@ const router = require('express').Router();
 const db = require('../data/dbConfig.js');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
+const jwChecks = require('../middleware/jwtChecks.js');
 
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
@@ -34,14 +35,14 @@ router.post('/upload', (req, res, next) => {
 
     // send file to Cloudinary
     cloudinary.config({
-      cloud_name: 'sandhu',
-      api_key: '715129729739239',
-      api_secret: 'yW0VuhyWZLCvOgLwFqVpM3nOi88'
+      cloud_name: process.env.CLOUDINARY_NAME,
+      api_key: process.env.CLOUDINARY_SECRET,
+      api_secret: process.env.CLOUDINARY_API_KEY
     });
 
     const path = req.file.path;
     const uniqueFilename = new Date().toISOString();
-    cloudinary.uploader.upload(
+    cloudinary.v2.uploader.upload(
       path,
       {public_id: `handyapp/${uniqueFilename}`, tags: `app`}, // directory and tags are optional
       function(err, images) {
@@ -57,12 +58,12 @@ router.post('/upload', (req, res, next) => {
   });
 });
 
-router.post('/', (req, res) => {
+router.post('/', jwChecks, (req, res) => {
+  console.log(req.body);
   if (
     !req.body.description ||
-    !req.body.images ||
     !req.body.materials_included ||
-    !req.body.user_id
+    !req.body.homeowner_id
   ) {
     res.status(400).json({
       message:
@@ -76,6 +77,7 @@ router.post('/', (req, res) => {
       })
 
       .catch(err => {
+        console.log(err.message);
         res.status(500).json(err.message);
       });
   }

@@ -14,8 +14,9 @@ exports.up = function(knex, Promise) {
         .onDelete('RESTRICT')
         .onUpdate('CASCADE');
 
+      tbl.string('title', 128).notNullable();
       tbl.string('description', 500).notNullable();
-      tbl.string('images', 255).notNullable();
+      tbl.string('images', 255);
       tbl.string('materials_included', 128).defaultTo('no');
       tbl.boolean('isActive').defaultTo(true);
       tbl.integer('price').defaultTo(0);
@@ -86,12 +87,10 @@ exports.up = function(knex, Promise) {
       tbl.string('reviewer_name', 255).notNullable();
       tbl.string('title', 255).notNullable();
       tbl.string('description', 255).notNullable();
-      tbl.integer('rating')
-      tbl.string('recommend',5)
+      tbl.integer('rating');
+      tbl.string('recommend', 5);
       tbl.timestamp('created_at').defaultTo(knex.fn.now());
-    })
-    
-
+    });
 };
 
 exports.down = function(knex, Promise) {
