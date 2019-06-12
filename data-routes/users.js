@@ -89,6 +89,37 @@ router.get('/:id', (req, res) => {
     });
 });
 
+// async function getProjectsById(id) {
+//   const project = await db('projects').where({homeowner_id}, id);
+// }
+
+// async function getProjectsBids(id) {
+//   const bids = await db('bids').where({project_id}, id);
+// }
+
+// router.get('/:id', async(req, res) => {
+//   try {
+//     const foundUser = await userDb.getUserById(req.params.id);
+//     const userProjects = await getProjectsById(foundUser.id);
+//     const ProjectBids = await getProjectsBids(userProjects.id);
+
+//     if(!foundUser) {
+//       res.status(404).json({errorMessage: `Couldn't find user!`});
+//     } else {
+//       const user = {
+//         ...foundUser,
+//         ...project,
+//         projects: userProjects,
+//         ...bids
+
+//       }
+//     }
+
+//   } catch (e) {
+//     res.status(500).json({errorMessage: 'Unable to find the specified at this time.'});
+//   }
+// });
+
 router.put('/:id', jwChecks, restricted, (req, res) => {
   db('users')
     .where({id: req.params.id})
