@@ -10,6 +10,8 @@ exports.up = function(knex, Promise) {
 
     tbl.string('last_name');
 
+    tbl.string('avatar', 255);
+
     tbl
       .string('company_name', 128)
       .nullable()
