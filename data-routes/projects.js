@@ -48,7 +48,7 @@ router.post(
             'In order to add a new project, title and description are required.'
         });
       } else {
-        const [id] = await db('projects').insert(req.body, 'id');
+        const [id] = await db('projects').insert(req.body);
         if (id) {
           const foundProject = await db('projects')
             .where({id})
@@ -76,7 +76,7 @@ router.post(
                   // remove file from server
                   const fs = require('fs');
                   fs.unlinkSync(path);
-                  res.status(201).json(editedProject);
+                  res.status(201).json({editedProject, foundProject});
                 }
                 // return image detail
               }
@@ -214,14 +214,14 @@ router.post(
 router.get('/', (req, res) => {
   db('projects')
     .join('users', 'projects.homeowner_id', 'users.id')
-
     .select(
       'projects.id',
       'projects.description',
       {name: 'users.first_name'},
       'users.last_name',
-      'projects.images',
-      'projects.materials_included'
+      'projects.thumbnail',
+      'projects.materials_included',
+      'projects.isActive'
     )
 
     .then(projects => {
