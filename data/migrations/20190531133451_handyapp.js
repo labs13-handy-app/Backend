@@ -16,7 +16,7 @@ exports.up = function(knex, Promise) {
 
       tbl.string('title', 128).notNullable();
       tbl.string('description', 500).notNullable();
-      tbl.string('images', 255);
+      tbl.string('thumbnail', 255);
       tbl.string('materials_included', 128).defaultTo('no');
       tbl.boolean('isActive').defaultTo(true);
       tbl.integer('price').defaultTo(0);
@@ -47,6 +47,20 @@ exports.up = function(knex, Promise) {
       tbl.string('time', 128).notNullable();
       tbl.string('materials_included', 128).defaultTo('no');
       tbl.boolean('isAccpted').defaultTo(false);
+      tbl.timestamp('created_at').defaultTo(knex.fn.now());
+    })
+    .createTable('project_images', tbl => {
+      tbl.increments();
+      tbl
+        .integer('project_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('projects')
+        .onDelete('RESTRICT')
+        .onUpdate('CASCADE');
+
+      tbl.string('image', 255);
       tbl.timestamp('created_at').defaultTo(knex.fn.now());
     })
     .createTable('project_agreement', tbl => {
@@ -98,6 +112,7 @@ exports.down = function(knex, Promise) {
   return knex.schema
     .dropTableIfExists('projects')
     .dropTableIfExists('bids')
+    .dropTableIfExists('project_images')
     .dropTableIfExists('project_agreement')
     .dropTableIfExists('feedback');
 };
