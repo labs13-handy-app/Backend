@@ -62,11 +62,7 @@ router.get('/contractor/:id', (req, res) => {
           .where({contractor_id: req.params.id})
           .then(reviews => {
             user.reviews = reviews;
-            if(reviews.length>0){
             res.status(200).json(user);
-            }else {
-              res.status(404).json({message:'The specifed user has no reviews'})
-            }
           });
       } else {
         res
