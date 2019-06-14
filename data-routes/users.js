@@ -18,39 +18,55 @@ const storage = multer.diskStorage({
   }
 });
 
-router.post('/upload', (req, res, next) => {
-  const upload = multer({storage}).single('image-input-key');
-  upload(req, res, function(err) {
-    if (err) {
-      return res.send(err);
-    }
-    console.log('file uploaded to server');
-    console.log(req.file);
-
-    // send file to Cloudinary
-    cloudinary.config({
-      cloud_name: 'sandhu',
-      api_key: '715129729739239',
-      api_secret: 'yW0VuhyWZLCvOgLwFqVpM3nOi88'
-    });
-
-    const path = req.file.path;
-    const uniqueFilename = new Date().toISOString();
-    cloudinary.uploader.upload(
-      path,
-      {public_id: `handyapp/${uniqueFilename}`, tags: `app`}, // directory and tags are optional
-      function(err, images) {
-        if (err) return res.send(err);
-        console.log('file uploaded to Cloudinary');
-        // remove file from server
-        const fs = require('fs');
-        fs.unlinkSync(path);
-        // return image details
-        res.json(images);
-      }
-    );
-  });
+// send file to Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET
 });
+
+const upload = multer({storage});
+
+router.post(
+  '/upload',
+  jwChecks,
+  restricted,
+  upload.single('avatar'),
+  async (req, res, next) => {
+    try {
+      const user = req.user;
+      const path = req.file.path;
+      const uniqueFilename = new Date().toISOString();
+
+      cloudinary.uploader.upload(
+        path,
+        {public_id: `handyapp/${uniqueFilename}`, tags: `app`}, // directory and tags are optional
+        async (err, avatar) => {
+          if (err) return res.send(err);
+
+          const newUser = {
+            ...user,
+            avatar
+          };
+
+          const result = await userDb.updateUser(user.id, newUser);
+          if (result) {
+            // remove file from server
+            const fs = require('fs');
+            fs.unlinkSync(path);
+            // return image details
+            res.status(201).json(newUser);
+          }
+        }
+      );
+    } catch (e) {
+      console.log(e.message);
+      res
+        .status(500)
+        .json({errorMessage: `Server couldn't add profile picture.`});
+    }
+  }
+);
 
 router.get('/', jwChecks, restricted, async (req, res) => {
   try {
