@@ -2,7 +2,7 @@ const router = require('express').Router();
 const db = require('../data/dbConfig.js');
 
 router.post('/',(req, res) => {
-    if (!req.body.project_id||!req.body.price || !req.body.time || !req.body.user_id || !req.body.materials_included ){
+    if (!req.body.project_id||!req.body.price || !req.body.time || !req.body.contractor_id || !req.body.materials_included ){
 
         res.status(400).json({message:'In order to add a new Bid, you must provide a Project it belongs to , your price, the amount of time it will take, and if materials are included or not. '})
     }else{
