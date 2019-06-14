@@ -241,6 +241,8 @@ router.get('/:id', (req, res) => {
       if (project) {
         db('bids')
           .where({project_id: req.params.id})
+          .join('users', 'bids.contractor_id','users.id')
+          .select('bids.id','bids.price','bids.time','bids.materials_included','bids.contractor_id', 'users.first_name','users.last_name')
           .then(bids => {
             project.bids = bids;
             res.status(200).json(project);
