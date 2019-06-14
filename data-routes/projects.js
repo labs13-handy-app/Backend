@@ -39,8 +39,8 @@ router.post(
   jwChecks,
   restricted,
   upload.single('thumbnail'),
-  async (req, res) => {
-    console.log(req.file);
+  async (req, res, next) => {
+    // console.log(req.file);
     try {
       if (!req.body.title || !req.body.description || !req.body.homeowner_id) {
         res.status(400).json({
@@ -77,6 +77,7 @@ router.post(
                   const fs = require('fs');
                   fs.unlinkSync(path);
                   res.status(201).json({editedProject, foundProject});
+                  next();
                 }
                 // return image detail
               }
@@ -92,11 +93,12 @@ router.post(
 );
 
 router.post(
-  '/:id/images',
+  '/upload/:id/images',
   jwChecks,
   restricted,
   upload.array('images', 5),
   async (req, res) => {
+    console.log(req);
     let upload_image = () => {
       const filePaths = req.files.map(
         image =>
