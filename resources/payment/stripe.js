@@ -74,8 +74,8 @@ router.post('/charge', jwtChecks, restricted, async (req, res) => {
       const updatedUser = await db.updateUser(foundUser.id, foundUser);
       res.status(201).json({message: 'Purchase was successfull'});
     }
-  } catch (e) {
-    res.status(500).json({errorMessage: 'Purchase Failed'});
+  } catch ({message}) {
+    res.status(500).json({message});
   }
 });
 
