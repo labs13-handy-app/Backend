@@ -21,138 +21,113 @@ const storage = multer.diskStorage({
   }
 });
 
-// const upload = multer({storage});
-
-// router.post('/upload', (req, res, next) => {
-//   const upload = multer({ storage }).single('image-input-key');
-//   upload(req, res, function(err) {
-//     if (err) {
-//       return res.send(err);
-//     }
-//     res.json(req.file);
-//   });
-// });
 const upload = multer({storage});
 
-router.post(
-  '/',
-  jwChecks,
-  restricted,
-  upload.single('thumbnail'),
-  async (req, res, next) => {
-    // console.log(req.file);
-    try {
-      if (!req.body.title || !req.body.description || !req.body.homeowner_id) {
-        res.status(400).json({
-          message:
-            'In order to add a new project, title and description are required.'
-        });
-      } else {
-        const [id] = await db('projects').insert(req.body);
-        if (id) {
-          const foundProject = await db('projects')
-            .where({id})
-            .first();
-          if (!foundProject) {
-            res.status(404).json({errorMessage: `Project doesn't exist!`});
-          } else {
-            const path = req.file.path;
-            const uniqueFilename = new Date().toISOString();
-            cloudinary.uploader.upload(
-              path,
-              {public_id: `handyapp/${uniqueFilename}`, tags: `app`}, // directory and tags are optional
-              async function(err, image) {
-                if (err) return res.send(err);
-                const {id} = foundProject;
-                const {secure_url: thumbnail} = image;
-                const editedProject = await db('projects')
-                  .where({id})
-                  .update({...foundProject, thumbnail});
-                if (!editedProject) {
-                  res
-                    .status(404)
-                    .json({errorMessage: `Project doesn't exist!`});
-                } else {
-                  // remove file from server
-                  const fs = require('fs');
-                  fs.unlinkSync(path);
-                  res.status(201).json({editedProject, foundProject});
-                  next();
-                }
-                // return image detail
-              }
-            );
+router.post('/', jwChecks, restricted, async (req, res) => {
+  try {
+    if (!req.body.title || !req.body.description || !req.body.homeowner_id) {
+      res.status(400).json({
+        message:
+          'In order to add a new project, title and description are required.'
+      });
+    } else {
+      const project = {
+        title: req.body.title,
+        description: req.body.description,
+        homeowner_id: req.body.homeowner_id
+      };
+      const [id] = await db('projects').insert(project);
+      if (id) {
+        const foundProject = await db('projects')
+          .where({id})
+          .first();
+        if (!foundProject) {
+          res.status(404).json({
+            errorMessage: `Project doesn't exist!`
+          });
+        } else {
+          if (req.body.images) {
+            for (let i = 0; i < req.body.images.length; i++) {
+              const projectImage = {
+                image: req.body.images[i],
+                project_id: foundProject.id
+              };
+
+              const addedImage = await db('project_images').insert(
+                projectImage
+              );
+            }
           }
+          res.status(201).json(foundProject);
         }
       }
-    } catch (e) {
-      console.log(e.message);
-      res.status(500).json({errorMessage: ` Couldn't add project.`});
     }
+  } catch ({message}) {
+    res.status(500).json({message});
   }
-);
+});
 
-router.post(
-  '/upload/:id/images',
-  jwChecks,
-  restricted,
-  upload.array('images', 5),
-  async (req, res) => {
-    console.log(req);
-    let upload_image = () => {
-      const filePaths = req.files.map(
-        image =>
-          new Promise((resolve, reject) => {
-            const uniqueFilename = new Date().toISOString();
-            let path = image.path;
-            cloudinary.uploader.upload(
-              path,
-              {public_id: `handyapp/${uniqueFilename}`, tags: `app`}, // directory and tags are optional
-              async (err, image) => {
-                // if (err) reject(err);
-                try {
-                  const foundProject = await db('projects')
-                    .where({id: req.params.id})
-                    .first();
-                  if (!foundProject) {
-                    res
-                      .status(404)
-                      .json({errorMessage: `Project doesn't exist. `});
-                  } else {
-                    const data = {
-                      project_id: foundProject.id,
-                      image: image.secure_url
-                    };
-                    const addedImage = await db('project_images').insert(data);
-                    if (addedImage) {
-                      resolve(image.public_id);
-                      res.status(201).json({
-                        message: 'Images sucessfully added to database!'
-                      });
-                    } else {
-                      res.status(500).json({
-                        errorMessage: `Couldn't add the images in the database`
-                      });
-                    }
-                  }
-                } catch (err) {
-                  console.log(err);
-                  reject(err);
-                }
-              }
-            );
-          })
-      );
+// router.post(
+//   '/upload/:id/images',
+//   jwChecks,
+//   restricted,
 
-      Promise.all(filePaths).then(result =>
-        console.log({
-          response: result
-        })
-      );
-    };
-    upload_image();
-  }
-);
+//   async (req, res) => {
+//     console.log(req);
+//     let upload_image = () => {
+//       const filePaths = req.files.map(
+//         image =>
+//           new Promise((resolve, reject) => {
+//             const uniqueFilename = new Date().toISOString();
+//             let path = image.path;
+//             cloudinary.uploader.upload(
+//               path,
+//               {public_id: `handyapp/${uniqueFilename}`, tags: `app`}, // directory and tags are optional
+//               async (err, image) => {
+//                 // if (err) reject(err);
+//                 try {
+//                   const foundProject = await db('projects')
+//                     .where({id: req.params.id})
+//                     .first();
+//                   if (!foundProject) {
+//                     res
+//                       .status(404)
+//                       .json({errorMessage: `Project doesn't exist. `});
+//                   } else {
+//                     const data = {
+//                       project_id: foundProject.id,
+//                       image: image.secure_url
+//                     };
+//                     const addedImage = await db('project_images').insert(data);
+//                     if (addedImage) {
+//                       resolve(image.public_id);
+//                       res.status(201).json({
+//                         message: 'Images sucessfully added to database!'
+//                       });
+//                     } else {
+//                       res.status(500).json({
+//                         errorMessage: `Couldn't add the images in the database`
+//                       });
+//                     }
+//                   }
+//                 } catch (err) {
+//                   console.log(err);
+//                   reject(err);
+//                 }
+//               }
+//             );
+//           })
+//       );
+
+//       Promise.all(filePaths).then(result =>
+//         console.log({
+//           response: result
+//         })
+//       );
+//     };
+//     upload_image();
+//   }
+// );
 
 // router.post('/', upload.single('image-input-key'), async (req, res, next) => {
 //   cloudinary.config({
@@ -221,7 +196,6 @@ router.get('/', (req, res) => {
       'projects.description',
       {name: 'users.first_name'},
       'users.last_name',
-      'projects.thumbnail',
       'projects.materials_included',
       'projects.isActive'
     )
@@ -233,32 +207,67 @@ router.get('/', (req, res) => {
     .catch(err => res.send(err.message));
 });
 
-router.get('/:id', (req, res) => {
-  db('projects')
-    .where({id: req.params.id})
-    .first()
-    .then(project => {
-      if (project) {
-        db('bids')
-          .where({project_id: req.params.id})
-          .join('users', 'bids.contractor_id','users.id')
-          .select('bids.id','bids.price','bids.time','bids.materials_included','bids.contractor_id', 'users.first_name','users.last_name')
-          .then(bids => {
-            project.bids = bids;
-            res.status(200).json(project);
-          });
-      } else {
-        res.status(404).json({
-          message: 'The project with the Specified ID does not exist'
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).json({
-        error: err,
-        message: 'Unable to find the Specified prject at this time.'
-      });
-    });
+router.get('/:id', async (req, res) => {
+  try {
+    const foundProject = await db('projects')
+      .where({id: req.params.id})
+      .first();
+
+    if (foundProject) {
+      const bids = await db('bids')
+        .where({project_id: req.params.id})
+        .join('users', 'bids.contractor_id', 'users.id')
+        .select(
+          'bids.id',
+          'bids.price',
+          'bids.time',
+          'bids.materials_included',
+          'bids.contractor_id',
+          'users.first_name',
+          'users.last_name'
+        );
+
+      const images = await db('project_images as pi')
+        .where({project_id: req.params.id})
+        .join('projects', 'pi.project_id', 'projects.id')
+        .select('pi.image');
+
+      const project = {
+        ...foundProject,
+        bids,
+        images
+      };
+
+      res.status(200).json(project);
+    }
+  } catch ({message}) {
+    res.status(500).json({message});
+  }
+
+  //     .then(project => {
+  //       if (project) {
+
+  //           .then(bids => {
+  //             project.bids = bids;
+  //             res.status(200).json(project);
+  //           });
+
+  // .then(images => {
+  //           project.images = images;
+
+  //         })
+  //       } else {
+  //         res.status(404).json({
+  //           message: 'The project with the Specified ID does not exist'
+  //         });
+  //       }
+  //     })
+  //     .catch(err => {
+  //       res.status(500).json({
+  //         error: err,
+  //         message: 'Unable to find the Specified prject at this time.'
+  //       });
+  //     });
 });
 
 router.put('/:id', (req, res) => {

@@ -16,7 +16,6 @@ exports.up = function(knex, Promise) {
 
       tbl.string('title', 128).notNullable();
       tbl.string('description', 500).notNullable();
-      tbl.string('thumbnail', 255);
       tbl.string('materials_included', 128).defaultTo('no');
       tbl.boolean('isActive').defaultTo(true);
       tbl.integer('price').defaultTo(0);
