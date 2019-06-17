@@ -36,7 +36,9 @@ router.post('/', jwChecks, restricted, async (req, res) => {
         description: req.body.description,
         homeowner_id: req.body.homeowner_id
       };
-      const [id] = await db('projects').insert(project);
+      const [id] = await db('projects')
+        .insert(project)
+        .returning('id');
       if (id) {
         const foundProject = await db('projects')
           .where({id})
