@@ -100,15 +100,14 @@ router.post('/transfer', jwtChecks, restricted, async (req, res) => {
         destination: req.body.stripe_id,
         source_type: req.body.stripeToken
       });
-      balance = 0;
+
       foundUser.balance = balance;
 
       const updatedUser = await db.updateUser(foundUser.id, foundUser);
       res.status(201).json({message: 'Transfer was successful'});
     }
-  } catch (err) {
-    console.log(err.message);
-    res.status(500).json({errorMessage: 'Transfer failed!'});
+  } catch ({message}) {
+    res.status(500).json({message});
   }
 });
 
@@ -143,9 +142,8 @@ router.post('/connect', jwtChecks, restricted, async (req, res) => {
       const editedUser = await db.updateUser(foundUser.id, foundUser);
       res.status(201).json({message: 'Connect was successfull!'});
     }
-  } catch (e) {
-    console.log(e.message);
-    res.status(500).json({errorMessage: 'Failed to connect!'});
+  } catch ({message}) {
+    res.status(500).json({message});
   }
 });
 

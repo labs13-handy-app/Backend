@@ -79,71 +79,49 @@ router.get('/', jwChecks, restricted, async (req, res) => {
   }
 });
 
-router.get('/:id', (req, res) => {
-  db('users')
-    .where({id: req.params.id})
-    .first()
-    .then(user => {
-      if (user) {
-        db('projects')
-          .where({homeowner_id: req.params.id})
-          .then(projects => {
-            user.projects = projects;
-            res.status(200).json(user);
-          });
-      } else {
-        res
-          .status(404)
-          .json({message: 'The User with the Specified ID does not exist'});
-      }
-    })
-    .catch(err => {
-      res.status(500).json({
-        error: err,
-        message: 'Unable to find the Specified User at this time.'
+router.get('/:id', jwChecks, restricted, async (req, res) => {
+  try {
+    const activeUser = req.user;
+
+    activeUser.projects = await db.raw(
+      `SELECT p.* FROM projects as p WHERE p.homeowner_id = ${req.params.id}`
+    );
+
+    const projects = await activeUser.projects.map(async project => {
+      const images = await db('project_images').where({
+        project_id: project.id
       });
+
+      const bids = await db('bids').where({project_id: project.id});
+
+      project.images = images;
+      project.bids = bids;
+      return project;
     });
+
+    activeUser.projects = await projects;
+
+    Promise.all(projects).then(projects => {
+      const user = {...activeUser, projects};
+      res.status(200).json({user});
+    });
+  } catch ({message}) {
+    res.status(500).json({message});
+  }
 });
-
-// async function getProjectsById(id) {
-//   const project = await db('projects').where({homeowner_id}, id);
-// }
-
-// async function getProjectsBids(id) {
-//   const bids = await db('bids').where({project_id}, id);
-// }
-
-// router.get('/:id', async(req, res) => {
-//   try {
-//     const foundUser = await userDb.getUserById(req.params.id);
-//     const userProjects = await getProjectsById(foundUser.id);
-//     const ProjectBids = await getProjectsBids(userProjects.id);
-
-//     if(!foundUser) {
-//       res.status(404).json({errorMessage: `Couldn't find user!`});
-//     } else {
-//       const user = {
-//         ...foundUser,
-//         ...project,
-//         projects: userProjects,
-//         ...bids
-
-//       }
-//     }
-
-//   } catch (e) {
-//     res.status(500).json({errorMessage: 'Unable to find the specified at this time.'});
-//   }
-// });
 
 router.put('/:id', jwChecks, restricted, (req, res) => {
   db('users')
     .where({id: req.params.id})
     .update(req.body)
     .then(user => {
-      // const token = generateToken(user);
       if (user) {
-        res.status(200).json(user);
+        db('users')
+          .where({id: req.params.id})
+          .first()
+          .then(user => {
+            res.status(200).json(user);
+          });
       } else {
         res.status(404).json({message: 'the specified User does not exist'});
       }
