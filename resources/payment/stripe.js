@@ -7,6 +7,7 @@ const axios = require('axios');
 
 router.post('/new-customer', jwtChecks, restricted, async (req, res) => {
   try {
+    console.log(req.body);
     const {name: email, nickname: name} = req.decodedJwt;
 
     // Creating a new customer
@@ -14,8 +15,8 @@ router.post('/new-customer', jwtChecks, restricted, async (req, res) => {
       email,
       name,
       description: `New customer account for ${email}`,
-      source: req.body.token || 'tok_visa',
-      balance: req.body.balance
+      source: req.body.source.id || 'tok_visa',
+      balance: req.body.amount
     });
 
     if (customer) {
@@ -46,7 +47,7 @@ router.post('/charge', jwtChecks, restricted, async (req, res) => {
       // Charge the user if exist.
 
       // Get the stripeToken from the Stripe form in the front-end.
-      const source = req.body.stripeToken;
+      const source = req.body.source.id;
 
       // Get the stripeEmail from the Stripe form in the front-end.
       const {stripeEmail: receipt_email} = req.body;
@@ -59,13 +60,15 @@ router.post('/charge', jwtChecks, restricted, async (req, res) => {
 
       // Create the new charge.
       const charge = await stripe.charges.create({
-        amount: balance,
-        description: `Charge for ${foundUser.name}`,
+        amount: req.body.amount,
+        description: `Charge of ${req.body.amount} to ${
+          foundUser.name
+        } for the project`,
         currency: 'usd',
         receipt_email,
         source
       });
-
+      console.log(charge);
       // Reset the balance to 0 after charge is processed and assign it back to the user  object.
       balance = 0;
       foundUser.balance = balance;
@@ -75,6 +78,7 @@ router.post('/charge', jwtChecks, restricted, async (req, res) => {
       res.status(201).json({message: 'Purchase was successfull'});
     }
   } catch ({message}) {
+    console.log(message);
     res.status(500).json({message});
   }
 });
