@@ -47,7 +47,7 @@ router.post('/charge', jwtChecks, restricted, async (req, res) => {
       // Charge the user if exist.
 
       // Get the stripeToken from the Stripe form in the front-end.
-      const source = req.body.source.id;
+      // const source = req.body.source.id;
 
       // Get the stripeEmail from the Stripe form in the front-end.
       const {stripeEmail: receipt_email} = req.body;
@@ -66,7 +66,7 @@ router.post('/charge', jwtChecks, restricted, async (req, res) => {
         } for the project`,
         currency: 'usd',
         receipt_email,
-        source
+        // source
       });
       console.log(charge);
       // Reset the balance to 0 after charge is processed and assign it back to the user  object.
