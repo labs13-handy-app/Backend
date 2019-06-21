@@ -65,6 +65,7 @@ router.post('/', jwChecks, restricted, async (req, res) => {
       }
     }
   } catch ({message}) {
+    console.log(message);
     res.status(500).json({message});
   }
 });
@@ -289,23 +290,23 @@ router.put('/:id', (req, res) => {
     });
 });
 
-router.delete('/:id', (req, res) => {
-  db('projects')
-    .where({id: req.params.id})
-
-    .del()
-
-    .then(count => {
-      if (count > 0) {
-        res.status(200).json({message: `${count} Project was deleted`});
-      } else {
-        res.status(400).json({message: 'the specified Project does not exist'});
-      }
-    })
-
-    .catch(err => {
-      res.status(500).json(err.message);
-    });
+router.delete('/:id', jwChecks, restricted, async (req, res) => {
+  try {
+    const user = req.user;
+    const project = await db('projects')
+      .where({id: req.params.id})
+      .del();
+    if (!project) {
+      res
+        .status(404)
+        .json({errorMessage: 'No project was found for this user!'});
+    } else {
+      const projects = await db('projects').where({homeowner_id: user.id});
+      res.status(200).json(projects);
+    }
+  } catch ({message}) {
+    res.status(500).json({message});
+  }
 });
 
 module.exports = router;
