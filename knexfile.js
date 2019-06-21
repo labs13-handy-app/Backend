@@ -1,15 +1,13 @@
 // Update with your config settings.
-require('dotenv').config();
-const pg = require('pg');
-pg.defaults.ssl = true;
+// require('dotenv').config();
+// const pg = require('pg');
+// pg.defaults.ssl = true;
 
 module.exports = {
   development: {
-    client: 'sqlite3',
+    client: 'sqlite',
     useNullAsDefault: true,
-    connection: {
-      filename: './data/handy_app.db3'
-    },
+    connection: './data/handyapp.db3',
     migrations: {
       directory: './data/migrations'
     },
