@@ -36,9 +36,10 @@ router.post('/new-customer', jwtChecks, restricted, async (req, res) => {
 });
 
 router.post('/charge', jwtChecks, restricted, async (req, res) => {
+  console.log(Object.values(req))
   try {
     // Get the user from the auth0 decoded token.
-    const foundUser = await db.getUserByName(req.decodedJwt.nickname);
+    const foundUser = await db.getUserByName(req.user.nickname);
 
     if (!foundUser) {
       // If user not found send a 404 error.
@@ -65,6 +66,7 @@ router.post('/charge', jwtChecks, restricted, async (req, res) => {
           foundUser.name
         } for the project`,
         currency: 'usd',
+        customer:req.body.customer,
         receipt_email,
         // source
       });
@@ -86,7 +88,7 @@ router.post('/charge', jwtChecks, restricted, async (req, res) => {
 router.post('/transfer', jwtChecks, restricted, async (req, res) => {
   try {
     // Get the user from the auth0 decoded token.
-    const foundUser = await db.getUserByName(req.decodedJwt.nickname);
+    const foundUser = await db.getUserByName(req.user.nickname);
 
     if (!foundUser) {
       // If user not found
@@ -98,7 +100,7 @@ router.post('/transfer', jwtChecks, restricted, async (req, res) => {
       balance = balance * 100;
 
       const transfer = await stripe.transfers.create({
-        amount: balance,
+        amount: req.body.amount,
         description: `Transfer for ${foundUser.name}`,
         currency: 'usd',
         destination: req.body.stripe_id,
