@@ -197,17 +197,35 @@ router.get('/', (req, res) => {
     .select(
       'projects.id',
       'projects.description',
-      {name: 'users.first_name'},
+      'users.first_name',
+      'users.avatar',
+      'projects.title',
       'users.last_name',
       'projects.materials_included',
       'projects.isActive'
     )
-
     .then(projects => {
-      res.status(200).json(projects);
-    })
+      const result = projects.map(async project => {
+        project.images = [];
+        const images = await db('project_images').where({
+          project_id: project.id
+        });
 
-    .catch(err => res.send(err.message));
+        images.map(image => {
+          if (image.project_id === project.id)
+            return project.images.push(image.image);
+        });
+        return project;
+      });
+
+      Promise.all(result).then(result => {
+        res.status(200).json(result);
+      });
+    })
+    .catch(err => {
+      console.log(err.message);
+      res.send(err.message);
+    });
 });
 
 router.get('/:id', async (req, res) => {
@@ -291,20 +309,25 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', jwChecks, restricted, async (req, res) => {
+  console.log(req.user);
   try {
+    const id = parseInt(req.params.id);
     const user = req.user;
     const project = await db('projects')
-      .where({id: req.params.id})
+      .where({id})
       .del();
+
+    console.log(project);
     if (!project) {
       res
         .status(404)
         .json({errorMessage: 'No project was found for this user!'});
     } else {
-      const projects = await db('projects').where({homeowner_id: user.id});
+      const projects = await db('projects').where({homeowner_id: req.user.id});
       res.status(200).json(projects);
     }
   } catch ({message}) {
+    console.log(message);
     res.status(500).json({message});
   }
 });
