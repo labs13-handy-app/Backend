@@ -205,13 +205,13 @@ router.get('/', (req, res) => {
       'projects.isActive'
     )
     .then(projects => {
-      const result = projects.map(async project => {
+      const result = projects.rows.map(async project => {
         project.images = [];
         const images = await db('project_images').where({
           project_id: project.id
         });
 
-        images.map(image => {
+        images.rows.map(image => {
           if (image.project_id === project.id)
             return project.images.push(image.image);
         });
