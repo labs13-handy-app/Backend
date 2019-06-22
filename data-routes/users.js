@@ -96,11 +96,12 @@ router.get('/:id', jwChecks, restricted, async (req, res) => {
 
       project.images = images;
       project.bids = bids;
+
       return project;
     });
     activeUser.projects = await projects;
     Promise.all(projects).then(projects => {
-      console.log(projects);
+      projects.reverse();
       const user = {...activeUser, projects};
       res.status(200).json({user});
     });
