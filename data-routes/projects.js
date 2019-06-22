@@ -219,6 +219,7 @@ router.get('/', (req, res) => {
       });
 
       Promise.all(result).then(result => {
+        result.reverse();
         res.status(200).json(result);
       });
     })
