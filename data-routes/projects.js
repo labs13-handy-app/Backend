@@ -25,15 +25,22 @@ const upload = multer({storage});
 
 router.post('/', jwChecks, restricted, async (req, res) => {
   try {
-    if (!req.body.title || !req.body.description || !req.body.homeowner_id) {
+    if (
+      !req.body.title ||
+      !req.body.description ||
+      !req.body.homeowner_id ||
+      !req.body.budget
+    ) {
       res.status(400).json({
         message:
-          'In order to add a new project, title and description are required.'
+          'In order to add a new project, title, budget and description are required.'
       });
     } else {
       const project = {
         title: req.body.title,
         description: req.body.description,
+        budget: req.body.budget,
+        materials_included: req.body.materials_included,
         homeowner_id: req.body.homeowner_id
       };
       const [id] = await db('projects')
@@ -202,6 +209,7 @@ router.get('/', (req, res) => {
       'projects.title',
       'users.last_name',
       'projects.materials_included',
+      'projects.budget',
       'projects.isActive'
     )
     .then(projects => {

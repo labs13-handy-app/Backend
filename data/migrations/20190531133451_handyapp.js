@@ -18,7 +18,7 @@ exports.up = function(knex, Promise) {
       tbl.string('description', 500).notNullable();
       tbl.string('materials_included', 128).defaultTo('no');
       tbl.boolean('isActive').defaultTo(true);
-      tbl.integer('price').defaultTo(0);
+      tbl.string('budget').defaultTo('0');
       tbl.timestamp('created_at').defaultTo(knex.fn.now());
     })
     .createTable('bids', tbl => {

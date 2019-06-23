@@ -106,6 +106,7 @@ router.get('/:id', jwChecks, restricted, async (req, res) => {
       res.status(200).json({user});
     });
   } catch ({message}) {
+    console.log(message);
     res.status(500).json({message});
   }
 });
