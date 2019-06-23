@@ -210,7 +210,8 @@ router.get('/', (req, res) => {
       'users.last_name',
       'projects.materials_included',
       'projects.budget',
-      'projects.isActive'
+      'projects.isActive',
+      'projects.created_at'
     )
     .then(projects => {
       const result = projects.rows.map(async project => {
