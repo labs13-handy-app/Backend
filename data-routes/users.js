@@ -87,7 +87,7 @@ router.get('/:id', jwChecks, restricted, async (req, res) => {
       `SELECT p.* FROM projects as p WHERE p.homeowner_id = ${req.params.id}`
     );
 
-    const projects = await activeUser.projects.rows.map(async project => {
+    const projects = await activeUser.projects.map(async project => {
       const images = await db('project_images').where({
         project_id: project.id
       });
@@ -106,6 +106,7 @@ router.get('/:id', jwChecks, restricted, async (req, res) => {
       res.status(200).json({user});
     });
   } catch ({message}) {
+    console.log(message);
     res.status(500).json({message});
   }
 });
