@@ -203,7 +203,19 @@ router.post('/', jwChecks, restricted, async (req, res) => {
 router.get('/', (req, res) => {
   db('projects')
     .join('users', 'projects.homeowner_id', 'users.id')
-    .select('*')
+    .select(
+      'projects.id',
+      'projects.description',
+      'users.first_name',
+      'users.avatar',
+      'projects.title',
+      'users.last_name',
+      'projects.materials_included',
+      'projects.budget',
+      'projects.isActive',
+      'projects.created_at',
+      'projects.category'
+    )
     .then(projects => {
       const result = projects.map(async project => {
         project.images = [];
