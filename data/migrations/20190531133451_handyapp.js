@@ -2,6 +2,13 @@ exports.up = function(knex, Promise) {
   // the tables must be created in the right order,
   // tables with FK are created after the referenced table is created
   return knex.schema
+    .createTable('services', tbl => {
+      tbl.increments();
+      tbl
+        .string('name', 128)
+        .notNullable()
+        .unique();
+    })
     .createTable('projects', tbl => {
       tbl.increments();
 
@@ -19,6 +26,7 @@ exports.up = function(knex, Promise) {
       tbl.string('materials_included', 128).defaultTo('no');
       tbl.boolean('isActive').defaultTo(true);
       tbl.string('budget').defaultTo('0');
+      tbl.string('category', 128).notNullable();
       tbl.timestamp('created_at').defaultTo(knex.fn.now());
     })
     .createTable('bids', tbl => {
@@ -109,6 +117,7 @@ exports.up = function(knex, Promise) {
 exports.down = function(knex, Promise) {
   // tables with FK must be removed before the referenced table is removed
   return knex.schema
+    .dropTableIfExists('services')
     .dropTableIfExists('projects')
     .dropTableIfExists('bids')
     .dropTableIfExists('project_images')

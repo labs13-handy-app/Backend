@@ -29,11 +29,12 @@ router.post('/', jwChecks, restricted, async (req, res) => {
       !req.body.title ||
       !req.body.description ||
       !req.body.homeowner_id ||
-      !req.body.budget
+      !req.body.budget ||
+      !req.body.category
     ) {
       res.status(400).json({
         message:
-          'In order to add a new project, title, budget and description are required.'
+          'In order to add a new project, title, budget, category and description are required.'
       });
     } else {
       const project = {
@@ -41,6 +42,7 @@ router.post('/', jwChecks, restricted, async (req, res) => {
         description: req.body.description,
         budget: req.body.budget,
         materials_included: req.body.materials_included,
+        category: req.body.category,
         homeowner_id: req.body.homeowner_id
       };
       const [id] = await db('projects')
@@ -211,16 +213,24 @@ router.get('/', jwChecks, restricted, (req, res) => {
       'projects.materials_included',
       'projects.budget',
       'projects.isActive',
-      'projects.created_at'
+      'projects.created_at',
+      'projects.category'
     )
     .then(projects => {
-      const result = projects.rows.map(async project => {
+      const result = projects.map(async project => {
         project.images = [];
+        project.bids = [];
         const images = await db('project_images').where({
           project_id: project.id
         });
 
-        images.rows.map(image => {
+        const bids = await db('bids').where({project_id: project.id});
+
+        bids.map(bid => {
+          if (bid.project_id === project.id) return project.bids.push(bid);
+        });
+
+        images.map(image => {
           if (image.project_id === project.id)
             return project.images.push(image.image);
         });
@@ -232,9 +242,9 @@ router.get('/', jwChecks, restricted, (req, res) => {
         res.status(200).json(result);
       });
     })
-    .catch(err => {
-      console.log(err.message);
-      res.send(err.message);
+    .catch(({message}) => {
+      // console.log(err.message);
+      res.json({message});
     });
 });
 
