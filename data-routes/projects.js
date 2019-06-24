@@ -203,21 +203,9 @@ router.post('/', jwChecks, restricted, async (req, res) => {
 router.get('/', (req, res) => {
   db('projects')
     .join('users', 'projects.homeowner_id', 'users.id')
-    .select(
-      'projects.id',
-      'projects.description',
-      'users.first_name',
-      'users.avatar',
-      'projects.title',
-      'users.last_name',
-      'projects.materials_included',
-      'projects.budget',
-      'projects.isActive',
-      'projects.created_at',
-      'projects.category'
-    )
+    .select('*')
     .then(projects => {
-      const result = projects.rows.map(async project => {
+      const result = projects.map(async project => {
         project.images = [];
         project.bids = [];
         const images = await db('project_images').where({
@@ -226,11 +214,11 @@ router.get('/', (req, res) => {
 
         const bids = await db('bids').where({project_id: project.id});
 
-        bids.rows.map(bid => {
+        bids.map(bid => {
           if (bid.project_id === project.id) return project.bids.push(bid);
         });
 
-        images.rows.map(image => {
+        images.map(image => {
           if (image.project_id === project.id)
             return project.images.push(image.image);
         });
@@ -242,9 +230,9 @@ router.get('/', (req, res) => {
         res.status(200).json(result);
       });
     })
-    .catch(err => {
-      console.log(err.message);
-      res.send(err.message);
+    .catch(({message}) => {
+      // console.log(err.message);
+      res.json({message});
     });
 });
 
