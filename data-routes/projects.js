@@ -198,7 +198,7 @@ router.post('/', jwChecks, restricted, async (req, res) => {
 //   }
 // });
 
-router.get('/', (req, res) => {
+router.get('/', jwChecks, restricted, (req, res) => {
   db('projects')
     .join('users', 'projects.homeowner_id', 'users.id')
     .select(
