@@ -10,7 +10,8 @@ const projectRouter = require('../data-routes/projects.js');
 const stripeRouter = require('../resources/payment/stripe.js');
 const userRouter = require('../data-routes/users.js');
 const bidsRouter = require('../data-routes/bids.js');
-const feedbackRouter = require('../data-routes/feedback.js')
+const feedbackRouter = require('../data-routes/feedback.js');
+const serviceRouter = require('../data-routes/services.js');
 
 server.use(express.json());
 server.use(helmet());
@@ -22,10 +23,11 @@ server.use('/projects', projectRouter);
 server.use('/api/checkout', stripeRouter);
 server.use('/users', userRouter);
 server.use('/bids', bidsRouter);
-server.use('/feedback', feedbackRouter)
+server.use('/feedback', feedbackRouter);
+server.use('/services', serviceRouter);
 
 server.get('/', (req, res) => {
-  res.status(200).json({ message: 'Hello World!!' });
+  res.status(200).json({message: 'Hello World!!'});
 });
 
 module.exports = server;
