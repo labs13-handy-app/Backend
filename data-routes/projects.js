@@ -248,7 +248,7 @@ router.get('/', jwChecks, restricted, (req, res) => {
     });
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', jwChecks, restricted, async (req, res) => {
   try {
     const foundProject = await db('projects')
       .where({id: req.params.id})
@@ -311,7 +311,7 @@ router.get('/:id', async (req, res) => {
   //     });
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', jwChecks, restricted, (req, res) => {
   db('projects')
     .where({id: req.params.id})
     .update(req.body)
